@@ -19,8 +19,6 @@ def hello_world():
 
 @app.route('/command',methods=['POST'])
 def command():
-    # command = "~/.pyenv/shims/python3 ~/Desktop/Development/Bikeshare"
-    # os.popen(command)
     address = request.form['Body']
     
     target = get_curr_lat_long(address)
