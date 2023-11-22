@@ -7,8 +7,9 @@ import math
 import heapq
 import os
 
-load_dotenv()
-goog_auth_key = os.environ.get('GOOG_AUTH_KEY')
+#load_dotenv('.env') commenting out for github push
+#goog_auth_key = os.environ.get('GOOG_AUTH_KEY') commenting out for github push
+goog_auth_key = os.getenv('GOOG_AUTH_KEY')
 gmaps = googlemaps.Client(key=goog_auth_key)
 
 app = Flask(__name__)
