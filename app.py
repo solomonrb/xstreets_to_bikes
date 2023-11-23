@@ -23,10 +23,15 @@ def command():
     address = request.form['Body']
     
     target = get_curr_lat_long(address)
-    stations = get_station_locations()
-    low_five = find_five_closest(target, stations)
-    pre_string = get_low_five_status(low_five)
-    converted = convert_to_string(pre_string)
+
+    if target != []:
+        indexed_target = target[0]['geometry']['location']
+        stations = get_station_locations()
+        low_five = find_five_closest(indexed_target, stations)
+        pre_string = get_low_five_status(low_five)
+        converted = convert_to_string(pre_string)
+    else:
+        converted = "No Google Maps address found. Try cleaning up formatting like 'E 29 St and 1 Av' or 'Houston St and Macdougal St' or 'N 7 St and Bedford Av Williamsburg' with no extra words."
 
     resp = MessagingResponse()
     resp.message(converted)
@@ -35,7 +40,7 @@ def command():
 def get_curr_lat_long(address):
     corners = {'northeast': {'lat': 40.8518, 'lng': 73.7187}, 'southwest': {'lat': 40.5773, 'lng': 74.2282}}
     geocode_result = gmaps.geocode(address,bounds=corners)
-    return geocode_result[0]['geometry']['location']
+    return geocode_result
 
 def get_station_locations():
     r = requests.get('https://gbfs.lyft.com/gbfs/2.3/bkn/en/station_information.json')
@@ -73,7 +78,6 @@ def convert_to_string(low_five):
         output_string += low_five[station]['name'] + " has " + str(low_five[station]['bikes_avail']) + " bikes, " + str(low_five[station]['ebikes_avail']) + " e-bikes, " + str(low_five[station]['docks_avail']) + " docks.\n"
     return output_string
     
-
     
 if __name__ == "__main__":
   app.run()
