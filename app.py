@@ -80,22 +80,15 @@ def get_station_locations():
 
 
 def calc_euclidean_distance(target, station):
-    dx = station['lat'] - target['lat']
-    dy = station['lon'] - target['lng']
+    dy = target['lat'] - station['lat']
+    dx = target['lng'] - station['lon']
     distance = math.sqrt(dx**2 + dy**2)
-    angle = math.atan2(dy, dx)
-    angle_degrees = math.degrees(angle)
-    directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
-    index = round(angle_degrees / 45) % 8
-    cardinal = directions[index]
-    return (distance, cardinal)
+    return distance
 
 
 def find_three_closest(lat_lng_target, stations_dict):
     for station_id in stations_dict.keys():
-        distance, cardinal = calc_euclidean_distance(lat_lng_target, stations_dict[station_id])
-        stations_dict[station_id]['dist'] = distance
-        stations_dict[station_id]['dir'] = cardinal
+        stations_dict[station_id]['dist'] = calc_euclidean_distance(lat_lng_target, stations_dict[station_id])
     low_three = dict(heapq.nsmallest(3, stations_dict.items(), key=lambda item: item[1]['dist']))
     return low_three
 
@@ -114,7 +107,7 @@ def get_low_three_status(low_three):
 def convert_to_string(low_three):
     output_string = ""
     for station in low_three.keys():
-        output_string += low_three[station]['name'] + " (" + low_three[station]['dir'] + ")" + " has " + str(low_three[station]['bikes_avail']) + " bikes, " + str(low_three[station]['ebikes_avail']) + " e-bikes, " + str(low_three[station]['docks_avail']) + " docks.\n"
+        output_string += low_three[station]['name'] + " has " + str(low_three[station]['bikes_avail']) + " bikes, " + str(low_three[station]['ebikes_avail']) + " e-bikes, " + str(low_three[station]['docks_avail']) + " docks.\n"
     return output_string
 
     
