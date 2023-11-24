@@ -49,8 +49,8 @@ def command():
     if target != []:
         indexed_target = target[0]['geometry']['location']
         stations = get_station_locations()
-        low_five = find_five_closest(indexed_target, stations)
-        pre_string = get_low_five_status(low_five)
+        low_three = find_three_closest(indexed_target, stations)
+        pre_string = get_low_three_status(low_three)
         converted = convert_to_string(pre_string)
     else:
         converted = "No Google Maps address found. Try cleaning up formatting like 'E 29 St and 1 Av' or 'Houston St and Macdougal St' or 'N 7 St and Bedford Av Williamsburg' with no extra words."
@@ -87,28 +87,28 @@ def calc_euclidean_distance(target, station):
     return distance
 
 
-def find_five_closest(lat_lng_target, stations_dict):
+def find_three_closest(lat_lng_target, stations_dict):
     for station_id in stations_dict.keys():
         stations_dict[station_id]['dist'] = calc_euclidean_distance(lat_lng_target, stations_dict[station_id])
-    low_five = dict(heapq.nsmallest(5, stations_dict.items(), key=lambda item: item[1]['dist']))
-    return low_five
+    low_three = dict(heapq.nsmallest(3, stations_dict.items(), key=lambda item: item[1]['dist']))
+    return low_three
 
 
-def get_low_five_status(low_five):
+def get_low_three_status(low_three):
     r = requests.get('https://gbfs.lyft.com/gbfs/2.3/bkn/en/station_status.json')
     stations = r.json()['data']['stations']
     for station in stations:
-        if station['station_id'] in low_five.keys():
-            low_five[station['station_id']]['bikes_avail'] = station['num_bikes_available']
-            low_five[station['station_id']]['ebikes_avail'] = station['num_ebikes_available']
-            low_five[station['station_id']]['docks_avail'] = station['num_docks_available']
-    return low_five
+        if station['station_id'] in low_three.keys():
+            low_three[station['station_id']]['bikes_avail'] = station['num_bikes_available']
+            low_three[station['station_id']]['ebikes_avail'] = station['num_ebikes_available']
+            low_three[station['station_id']]['docks_avail'] = station['num_docks_available']
+    return low_three
 
 
-def convert_to_string(low_five):
+def convert_to_string(low_three):
     output_string = ""
-    for station in low_five.keys():
-        output_string += low_five[station]['name'] + " has " + str(low_five[station]['bikes_avail']) + " bikes, " + str(low_five[station]['ebikes_avail']) + " e-bikes, " + str(low_five[station]['docks_avail']) + " docks.\n"
+    for station in low_three.keys():
+        output_string += low_three[station]['name'] + " has " + str(low_three[station]['bikes_avail']) + " bikes, " + str(low_three[station]['ebikes_avail']) + " e-bikes, " + str(low_three[station]['docks_avail']) + " docks.\n"
     return output_string
 
     
