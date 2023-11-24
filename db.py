@@ -15,8 +15,6 @@ db_remote_bind_address = os.environ.get('DB_REMOTE_BIND_ADDRESS')
 db_user = os.environ.get('DB_USER')
 db_passwd = os.environ.get('DB_PASSWD')
 db_db = os.environ.get('DB_DB')
-prod_number = os.environ.get('PROD_NUMBER')
-dev_number = os.environ.get('DEV_NUMBER')
 
 def db_update_users(number):
     with sshtunnel.SSHTunnelForwarder(
