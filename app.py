@@ -23,7 +23,6 @@ def hello_world():
 def command():
     address = request.form['Body']
     number = int(request.form['From'].replace("+", ""))
-    texted_number = int(request.form['To'].replace("+", ""))
     current_dt = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d %H:%M:%S")
     
     target = get_curr_lat_long(address)
@@ -39,7 +38,7 @@ def command():
 
     #trigger in background to speed up response
     executor.submit(db_update_users(number))
-    executor.submit(db_update_events(number,current_dt,address,converted,texted_number))
+    executor.submit(db_update_events(number,current_dt,address,converted))
 
     resp = MessagingResponse()
     resp.message(converted)

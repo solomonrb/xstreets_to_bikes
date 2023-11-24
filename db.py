@@ -51,7 +51,7 @@ def db_update_users(number):
         conn.close()  
 
 
-def db_update_events(phone, time, content, response, texted_number):
+def db_update_events(phone, time, content, response):
     with sshtunnel.SSHTunnelForwarder(
         ('ssh.pythonanywhere.com'),
         ssh_username=db_ssh_username, ssh_password=db_ssh_password,
@@ -66,14 +66,8 @@ def db_update_events(phone, time, content, response, texted_number):
         cursor = conn.cursor()
 
         # the piece that changes
-        if str(texted_number) == prod_number:
-            env="prod"
-        elif str(texted_number) == dev_number:
-            env="dev"
-        else:
-            env="other_traffic"
-        user_query = "INSERT INTO events (phone, time, content, response, env) VALUES (%s, %s, %s, %s, %s)"
-        user_values = (phone, time, content, response, env)
+        user_query = "INSERT INTO events (phone, time, content, response) VALUES (%s, %s, %s, %s)"
+        user_values = (phone, time, content, response)
 
         cursor.execute(user_query, user_values)
         conn.commit()
