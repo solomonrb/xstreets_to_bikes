@@ -9,12 +9,15 @@ import heapq
 import os
 import MySQLdb
 import sshtunnel
+from flask_executor import Executor
 
+
+#to connect to DB
 sshtunnel.SSH_TIMEOUT = 5.0
 sshtunnel.TUNNEL_TIMEOUT = 5.0
 
+#to load in env variables
 load_dotenv()
-
 goog_auth_key = os.environ.get('GOOG_AUTH_KEY')
 db_ssh_username = os.environ.get('DB_SSH_USERNAME')
 db_ssh_password = os.environ.get('DB_SSH_PASSWORD')
@@ -23,10 +26,13 @@ db_user = os.environ.get('DB_USER')
 db_passwd = os.environ.get('DB_PASSWD')
 db_db = os.environ.get('DB_DB')
 
-gmaps = googlemaps.Client(key=goog_auth_key)
-
 
 app = Flask(__name__)
+
+#to make background tasks work
+app.config['EXECUTOR_TYPE'] = 'thread'
+app.config['EXECUTOR_POOL_RESTARTS'] = True
+executor = Executor(app)
 
 @app.route('/')
 def hello_world():
@@ -37,8 +43,9 @@ def command():
     address = request.form['Body']
     current_dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     number = int(request.form['From'].replace("+", ""))
-    db_update_users(number,current_dt)
 
+    #trigger in background to speed up response
+    executor.submit(db_update_users(number,current_dt))
     
     target = get_curr_lat_long(address)
 
@@ -50,13 +57,14 @@ def command():
         converted = convert_to_string(pre_string)
     else:
         converted = "No Google Maps address found. Try cleaning up formatting like 'E 29 St and 1 Av' or 'Houston St and Macdougal St' or 'N 7 St and Bedford Av Williamsburg' with no extra words."
-    #connect_to_db()
+
     resp = MessagingResponse()
     resp.message(converted)
     return str(resp)
 
 def get_curr_lat_long(address):
     corners = {'northeast': {'lat': 40.8518, 'lng': 73.7187}, 'southwest': {'lat': 40.5773, 'lng': 74.2282}}
+    gmaps = googlemaps.Client(key=goog_auth_key)
     geocode_result = gmaps.geocode(address,bounds=corners)
     return geocode_result
 
