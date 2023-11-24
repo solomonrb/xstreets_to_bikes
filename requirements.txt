@@ -6,3 +6,4 @@ requests==2.31.0
 mysqlclient==2.1.1
 sshtunnel==0.4.0
 Flask-Executor==1.0.0
+pytz==2023.3.post1
