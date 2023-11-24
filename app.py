@@ -1,14 +1,28 @@
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 from dotenv import load_dotenv
+from datetime import datetime
 import googlemaps
 import requests
 import math
 import heapq
 import os
+import MySQLdb
+import sshtunnel
+
+sshtunnel.SSH_TIMEOUT = 5.0
+sshtunnel.TUNNEL_TIMEOUT = 5.0
 
 load_dotenv()
+
 goog_auth_key = os.environ.get('GOOG_AUTH_KEY')
+db_ssh_username = os.environ.get('DB_SSH_USERNAME')
+db_ssh_password = os.environ.get('DB_SSH_PASSWORD')
+db_remote_bind_address = os.environ.get('DB_REMOTE_BIND_ADDRESS')
+db_user = os.environ.get('DB_USER')
+db_passwd = os.environ.get('DB_PASSWD')
+db_db = os.environ.get('DB_DB')
+
 gmaps = googlemaps.Client(key=goog_auth_key)
 
 
@@ -21,6 +35,10 @@ def hello_world():
 @app.route('/command',methods=['POST'])
 def command():
     address = request.form['Body']
+    current_dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    number = int(request.form['From'].replace("+", ""))
+    db_update_users(number,current_dt)
+
     
     target = get_curr_lat_long(address)
 
@@ -32,7 +50,7 @@ def command():
         converted = convert_to_string(pre_string)
     else:
         converted = "No Google Maps address found. Try cleaning up formatting like 'E 29 St and 1 Av' or 'Houston St and Macdougal St' or 'N 7 St and Bedford Av Williamsburg' with no extra words."
-
+    #connect_to_db()
     resp = MessagingResponse()
     resp.message(converted)
     return str(resp)
@@ -78,6 +96,40 @@ def convert_to_string(low_five):
         output_string += low_five[station]['name'] + " has " + str(low_five[station]['bikes_avail']) + " bikes, " + str(low_five[station]['ebikes_avail']) + " e-bikes, " + str(low_five[station]['docks_avail']) + " docks.\n"
     return output_string
     
-    
+def db_update_users(number, current_dt):
+    with sshtunnel.SSHTunnelForwarder(
+        ('ssh.pythonanywhere.com'),
+        ssh_username=db_ssh_username, ssh_password=db_ssh_password,
+        remote_bind_address=(db_remote_bind_address, 3306)
+    ) as tunnel:
+        conn = MySQLdb.connect(
+            user=db_user,
+            passwd=db_passwd,
+            host='127.0.0.1', port=tunnel.local_bind_port,
+            db=db_db,
+        )
+        cursor = conn.cursor()
+
+        check_user_query = "SELECT * FROM users WHERE phone = %s"
+        check_user_values = (number,)
+        cursor.execute(check_user_query, check_user_values)
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            curr_phone, first_send, most_recent_send, total_visits = existing_user 
+            user_query = "UPDATE users SET phone = %s, first_send = %s, most_recent_send = %s, total_visits = %s WHERE phone = %s"
+            user_values = (curr_phone, first_send, current_dt, total_visits+1, number)
+
+        else:
+            user_query = "INSERT INTO users (phone, first_send, most_recent_send, total_visits) VALUES (%s, %s, %s, %s)"
+            user_values = (number, current_dt, current_dt, 1)
+
+        cursor.execute(user_query, user_values)
+        conn.commit()
+
+        cursor.close()
+        conn.close()  
+
+
 if __name__ == "__main__":
   app.run()
