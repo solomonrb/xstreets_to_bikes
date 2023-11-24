@@ -10,7 +10,6 @@ import os
 import MySQLdb
 import sshtunnel
 from flask_executor import Executor
-from pymysqlpool import ConnectionPool
 
 #to connect to DB
 sshtunnel.SSH_TIMEOUT = 5.0
