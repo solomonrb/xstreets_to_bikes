@@ -15,6 +15,8 @@ db_remote_bind_address = os.environ.get('DB_REMOTE_BIND_ADDRESS')
 db_user = os.environ.get('DB_USER')
 db_passwd = os.environ.get('DB_PASSWD')
 db_db = os.environ.get('DB_DB')
+prod_number = os.environ.get('PROD_NUMBER')
+dev_number = os.environ.get('DEV_NUMBER')
 
 def db_update_users(number):
     with sshtunnel.SSHTunnelForwarder(
@@ -49,7 +51,7 @@ def db_update_users(number):
         conn.close()  
 
 
-def db_update_events(phone, time, content, response):
+def db_update_events(phone, time, content, response, texted_number):
     with sshtunnel.SSHTunnelForwarder(
         ('ssh.pythonanywhere.com'),
         ssh_username=db_ssh_username, ssh_password=db_ssh_password,
@@ -64,8 +66,14 @@ def db_update_events(phone, time, content, response):
         cursor = conn.cursor()
 
         # the piece that changes
-        user_query = "INSERT INTO events (phone, time, content, response) VALUES (%s, %s, %s, %s)"
-        user_values = (phone, time, content, response)
+        if str(texted_number) == prod_number:
+            env="prod"
+        elif str(texted_number) == dev_number:
+            env="dev"
+        else:
+            env="other_traffic"
+        user_query = "INSERT INTO events (phone, time, content, response, env) VALUES (%s, %s, %s, %s, %s)"
+        user_values = (phone, time, content, response, env)
 
         cursor.execute(user_query, user_values)
         conn.commit()
