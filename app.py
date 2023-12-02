@@ -19,8 +19,8 @@ def hello_world():
     return 'Hello, World!'
 
 
-@app.route('/command',methods=['POST'])
-def command():
+@app.route('/sms_to_citibike',methods=['POST'])
+def sms_to_citibike():
     address = request.form['Body']
     number = int(request.form['From'].replace("+", ""))
     current_dt = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d %H:%M:%S")
