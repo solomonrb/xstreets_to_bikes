@@ -1,16 +1,17 @@
 # NYC Citibike Stations via SMS 
 
-Text your current cross streets to 1-844-407-2201, and you will receive a response with the 3 closest Citibike stations and their bike/dock availability!
+Text your current cross streets or address to 1-844-407-2201, and you will receive a response with the 3 closest Citibike stations and their bike/dock availability!
 With a Citibike key and a dumb phone, you no longer need the Citibike app (or a smartphone)!
 
 
 ## Usage
 
-Send the cross streets where you are in a format that Google Maps would understand, e.g.:
+Send your current address or cross streets in a format that Google Maps would understand, e.g.:
 - `E 27 St and 1 Av Manhattan`
-- `Houston St and Macdougal St`
+- `20 W 34 St Manhattan`
 - `12 St and 37 Av Astoria`
 - `Vanderbilt and Willoughby Brooklyn`
+- `Bronx Zoo Asia Gate`
 
 You will receive a text response like:
 ```
@@ -24,9 +25,9 @@ Yes, it requires a little knowledge of the streets around you. Just like the old
 ## How It Works
 
 Code Overview:
-1. Google Maps geocoding API to return latitude/longitude of inputted cross streets
+1. Google Maps geocoding API to return latitude/longitude of inputted address/cross streets
 2. Pull live list of stations from Citibike feed
-3. Calculate nearest stations to the inputted cross streets
+3. Calculate nearest stations to the inputted location
 4. Check bike/dock availability at those nearby stations using Citibike feed
 
 Infrastructure:
