@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from twilio.twiml.messaging_response import MessagingResponse
 from datetime import datetime
 import os
@@ -26,6 +26,11 @@ def sms_to_citibike():
         number = int(request.form['From'].replace("+", ""))
         current_dt = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d %H:%M:%S")
         
+        if address == "UNSUB":
+            resp = MessagingResponse()
+            resp.message("You have successfully opted-out!")
+            return str(resp)
+
         target = get_curr_lat_long(address)
 
         if target != []:
@@ -45,7 +50,7 @@ def sms_to_citibike():
         resp.message(converted)
         return str(resp)
     else:
-        return "Let's see how this works."
+        return render_template('sms_to_citibike.html')
  
 
 if __name__ == "__main__":

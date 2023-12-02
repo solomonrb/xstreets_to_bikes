@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Citibike Stations via SMS</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #495057;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .contact-number {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #28A745;
+            color: #fff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .cta-button:hover {
+            background-color: #218838;
+        }
+
+        .github-link {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .github-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>NYC Citibike Stations via SMS</h1>
+</header>
+
+<div class="container">
+    <p>Text your current cross streets or address, and you will receive a response with the 3 closest Citibike stations and their bike/dock availability.</p>
+    <p>With a Citibike key and a dumb phone, you no longer need the Citibike app (or a smartphone)!</p>
+    <p>To opt in, simply text the number:</p>
+    <p class="contact-number">111-111-1234</p>
+    <p>You can opt out at any time by sending a "UNSUB" message (without the quotes) to the same number.</p>
+    <p>Texting the number again will opt you back in.</p>
+    <p>You will NEVER receive an unprompted message, only a message in response to the message you send.</p>
+    <p>This is an open source hobby project. Check out the <a class="github-link" href="https://github.com/solomonrb/xstreets_to_bikes" target="_blank">GitHub repository</a>.</p>
+</div>
+
+<footer>
+    Created by Solomon Rueschemeyer-Bailey. Please reach out with any questions or ideas: solomonrb at alumni.brown.edu
+</footer>
+
+</body>
+</html>
