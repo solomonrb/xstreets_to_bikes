@@ -1,6 +1,6 @@
 # NYC Citibike Stations via SMS 
 
-Text your current cross streets or address to 1-844-407-2201, and you will receive a response with the 3 closest Citibike stations and their bike/dock availability!
+Text your current cross streets or address to 1-914-454-2879, and you will receive a response with the 3 closest Citibike stations and their bike/dock availability!
 With a Citibike key and a dumb phone, you no longer need the Citibike app (or a smartphone)!
 
 
