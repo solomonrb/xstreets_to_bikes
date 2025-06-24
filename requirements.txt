@@ -3,7 +3,7 @@ twilio==8.10.2
 python-dotenv==0.21.1
 googlemaps==4.10.0
 requests==2.31.0
-mysqlclient==2.1.1
 sshtunnel==0.4.0
-Flask-Executor==1.0.0
 pytz==2023.3.post1
+Flask-SQLAlchemy==3.1.1
+PyMySQL==1.1.1
