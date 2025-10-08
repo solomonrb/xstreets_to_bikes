@@ -22,6 +22,17 @@ You will receive a text response like:
 
 Yes, it requires a little knowledge of the streets around you. Just like the olden days.
 
+### Favorite Locations
+
+Save your frequent locations for quick access:
+
+- **Save a favorite**: `!1 1 Penn Plaza` (saves to slot 1)
+- **Recall a favorite**: `1` (gets bikes for saved location #1)
+- **List favorites**: `!list` (shows all saved favorites)
+- **Delete a favorite**: `!del 1` (deletes favorite #1)
+
+Think of it as speed dial for your most-visited locations—home, work, gym, etc.
+
 ## How It Works
 
 Code Overview:

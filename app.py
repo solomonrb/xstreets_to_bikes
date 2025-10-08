@@ -33,14 +33,93 @@ def hello_world():
 @app.route('/sms_to_citibike',methods=['POST','GET'])
 def sms_to_citibike():
     if request.method == 'POST':
-        address = request.form['Body']
+        message = request.form['Body'].strip()
         number = int(request.form['From'].replace("+", ""))
         current_dt = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d %H:%M:%S")
-        
-        if address == "UNSUB":
+
+        if message == "UNSUB":
             resp = MessagingResponse()
             resp.message("You have successfully opted-out!")
             return str(resp)
+
+        if message.startswith('!'):
+            parts = message[1:].split(None, 1)
+            command = parts[0].lower()
+
+            if command == 'list':
+                favorites = Favorite.query.filter_by(phone=number).order_by(Favorite.slot_number).all()
+                if favorites:
+                    converted = "Your favorites:\n" + "\n".join([f"{fav.slot_number}: {fav.address}" for fav in favorites])
+                else:
+                    converted = "No favorites saved. Save with: !1 your address"
+
+            elif command == 'del':
+                if len(parts) < 2 or not parts[1].isdigit():
+                    converted = "Usage: !del <number>"
+                else:
+                    slot = int(parts[1])
+                    favorite = Favorite.query.filter_by(phone=number, slot_number=slot).first()
+                    if favorite:
+                        db.session.delete(favorite)
+                        db.session.commit()
+                        converted = f"Deleted favorite #{slot}"
+                    else:
+                        converted = f"No favorite #{slot} found"
+
+            elif command.isdigit():
+                slot = int(command)
+                if len(parts) < 2:
+                    converted = "Usage: !<number> <address>"
+                else:
+                    address = parts[1]
+                    favorite = Favorite.query.filter_by(phone=number, slot_number=slot).first()
+                    if favorite:
+                        favorite.address = address
+                        converted = f"Updated favorite #{slot}"
+                    else:
+                        favorite = Favorite(phone=number, slot_number=slot, address=address)
+                        db.session.add(favorite)
+                        converted = f"Saved as favorite #{slot}"
+                    db.session.commit()
+            else:
+                converted = "Commands: !<num> <address> to save, <num> to recall, !list to view, !del <num> to delete"
+
+            user = User.query.filter_by(phone=number).first()
+            if not user:
+                user = User(phone=number, text_count=0)
+                db.session.add(user)
+            user.text_count += 1
+
+            event = Event(phone=number, time=current_dt, content=message, response=converted)
+            db.session.add(event)
+            db.session.commit()
+
+            resp = MessagingResponse()
+            resp.message(converted)
+            return str(resp)
+
+        if message.isdigit():
+            slot = int(message)
+            favorite = Favorite.query.filter_by(phone=number, slot_number=slot).first()
+            if favorite:
+                address = favorite.address
+            else:
+                converted = f"No favorite #{slot} found. Save with: !{slot} your address"
+                user = User.query.filter_by(phone=number).first()
+                if not user:
+                    user = User(phone=number, text_count=0)
+                    db.session.add(user)
+                user.text_count += 1
+
+                event = Event(phone=number, time=current_dt, content=message, response=converted)
+                db.session.add(event)
+                db.session.commit()
+
+                resp = MessagingResponse()
+                resp.message(converted)
+                return str(resp)
+        else:
+            address = message
 
         target = get_curr_lat_long(address)
 
@@ -82,6 +161,15 @@ class User(db.Model):
     __tablename__ = 'users'
     phone = db.Column(db.Text, primary_key=True)
     text_count = db.Column(db.Integer)
+
+class Favorite(db.Model):
+    __tablename__ = 'favorites'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    phone = db.Column(db.BigInteger, nullable=False)
+    slot_number = db.Column(db.Integer, nullable=False)
+    address = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(pytz.timezone('America/New_York')))
+    __table_args__ = (db.UniqueConstraint('phone', 'slot_number', name='unique_phone_slot'),)
 
 if __name__ == "__main__":
   app.run()
